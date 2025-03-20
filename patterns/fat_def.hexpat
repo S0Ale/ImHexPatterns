@@ -9,7 +9,7 @@ namespace FAT16 {
         u8      FATCount;             // Number of FATs
         le u16  RootEntryCount;       // Max root directory entries (FAT12/16)
         le u16  TotalSectors16;       // Total sectors (if 0, check LargeSectors)
-        u8   MediaDescriptor;      // Media descriptor type
+        u8      MediaDescriptor;      // Media descriptor type
         le u16  SectorsPerFAT16;      // Sectors per FAT (FAT12/16)
         le u16  SectorsPerTrack;      // Sectors per track (for CHS)
         le u16  HeadsPerCylinder;     // Number of heads (for CHS)

@@ -1,7 +1,9 @@
+#include <type/guid.pat>
+
 namespace gpt{
     struct PartitionEntry{
-        le u128 partition_type_GUID;
-        le u128 unique_partition_GUID;
+        type::GUID partition_type_GUID;
+        type::GUID unique_partition_GUID;
         le u64 first_lba;
         u64 last_lba;
         u64 partition_attr;
@@ -18,7 +20,7 @@ namespace gpt{
         u64 lba_backup_header_struct;
         u64 lba_start_partition;
         u64 lba_end_partition;
-        le u128 disk_guid;
+        type::GUID disk_guid;
         u64 lba_start_partition_table;
         u32 table_entries_number;
         u32 entry_size;

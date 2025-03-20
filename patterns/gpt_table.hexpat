@@ -1,10 +1,13 @@
+#include <type/guid.pat>
+
 u8 entries_number in;
 // for entries not matching file size
 
 namespace gpt_table{
+
     struct PartitionEntry{
-        le u128 partition_type_GUID;
-        le u128 unique_partition_GUID;
+        type::GUID partition_type_GUID;
+        type::GUID unique_partition_GUID;
         le u64 first_lba;
         u64 last_lba;
         u64 partition_attr;

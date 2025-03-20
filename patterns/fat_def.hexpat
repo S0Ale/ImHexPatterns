@@ -42,13 +42,13 @@ namespace FAT16 {
     // VFAT Long File Name (LFN) entry
     struct VFAT_LFNEntry {
         u8        SequenceNumber;        // Order number (0x40 if last entry)
-        le u16    Name1[5];              // First 5 characters
+        char16    Name1[5];              // First 5 characters
         u8        Attribute;             // Always 0x0F for LFN
         u8        Reserved;              // Always 0x00
         u8        Checksum;              // Checksum of short name
-        le u16    Name2[6];              // Next 6 characters
+        char16    Name2[6];              // Next 6 characters
         le u16    FirstClusterZero;      // Must be 0
-        le u16    Name3[2];              // Last 2 characters
+        char16    Name3[2];              // Last 2 characters
     };
 
 }

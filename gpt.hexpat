@@ -4,7 +4,8 @@ u32 table_entries in;
 namespace gpt{
     struct PartitionEntry{
         type::GUID partition_type_GUID;
-        type::GUID first_lba;
+        type::GUID unique_part_GUID;
+        u64 first_lba;
         u64 last_lba;
         u64 partition_attr;
         char16 partition_name[36];

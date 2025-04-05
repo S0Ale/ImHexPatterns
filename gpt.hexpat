@@ -1,4 +1,5 @@
 #include <type/guid.pat>
+u32 table_entries in;
 
 namespace gpt{
     struct PartitionEntry{
@@ -28,6 +29,6 @@ namespace gpt{
     };
 
     struct TABLE{
-        PartitionEntry entries[table_entries_number];
+        PartitionEntry entries[table_entries];
     };
 }

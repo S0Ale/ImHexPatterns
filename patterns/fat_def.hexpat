@@ -22,6 +22,7 @@ namespace FAT16 {
         char    VolumeLabel[11];     // Volume label
         char    FileSystemType[8];   // File system type ("FAT12   ", "FAT16   ")
         char    BootCode[448];
+        u16     Signature;           // Boot sector signature (0x55AA)
     };
 
     struct FAT_DirectoryEntry {

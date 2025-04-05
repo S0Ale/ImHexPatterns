@@ -1,11 +1,12 @@
+#include <type/guid.pat>
+
 namespace gpt{
     struct PartitionEntry{
-        le u128 partition_type_GUID;
-        le u128 unique_partition_GUID;
-        le u64 first_lba;
+        type::GUID partition_type_GUID;
+        type::GUID first_lba;
         u64 last_lba;
         u64 partition_attr;
-        u16 partition_name[36];
+        char16 partition_name[36];
     };
 
     struct GPT{
@@ -18,13 +19,15 @@ namespace gpt{
         u64 lba_backup_header_struct;
         u64 lba_start_partition;
         u64 lba_end_partition;
-        le u128 disk_guid;
+        type::GUID disk_guid;
         u64 lba_start_partition_table;
         u32 table_entries_number;
         u32 entry_size;
         u32 crc32_checksum_table;
         char reserved_end_sector[420];
+    };
 
-        //PartitionEntry entries[table_entries_number] @ lba_start_partition_table * 512;
+    struct TABLE{
+        PartitionEntry entries[table_entries_number];
     };
 }

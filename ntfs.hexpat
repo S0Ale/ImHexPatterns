@@ -1,14 +1,10 @@
 #include <utils.hexpat>
-
-import std.file;
+import type.time;
 
 s64 attributeCount in; // Negative if you want to search patterns until the end of the sequence (type 0xffffffff)
 u8 entriesCount in;
 
-u64 tableStart; // start of MFT table
 s64 count = attributeCount; // attribute counter (if positive)
-
-u64 endCurrentEntry;
 
 namespace ntfs{
 
@@ -52,7 +48,6 @@ namespace ntfs{
         u64 start = $;
 
         u32 file_magic [[comment("Magic number 'FILE'")]];
-        std::print("{:x}", file_magic);
         if(file_magic != 0x454c4946) break; 
         u16 update_seq_offset [[comment("Offset in bytes into the MFT table if the fixup array")]];
         u16 update_seq_size [[comment("Number of entries")]];
@@ -82,27 +77,60 @@ namespace ntfs{
 
         u32 type_id [[format_read("hex")]];
         u32 attr_length;
-        if(type_id == 0xffffffff){ // end of entry attributes
-            endCurrentEntry = $;
-            break;
-        }
+        if(type_id == 0xffffffff) break; // end of entry attributes
 
         FormCode form_code [[comment("0: resident; 1: not-resident")]];
         u8 name_len;
         u16 name_offset;
         u16 flags [[format_read("decimal_hex")]];
         u16 attr_id;
-        if(form_code == 0) u32 content_len;
-        if(form_code == 0) u16 content_offset;
-        if(form_code == 0) u8 unused[2] [[hidden]];
+        u32 content_len;
+        u16 content_offset;
+        u8 unused[2] [[hidden]];
         
         // End offset to calculate size
         u64 end = $;
         u64 sizeOf = end - start;
     };
+
+    u64 attrLength;
+    u64 headerSize;
+    struct FileName{
+        u64 start = $;
+
+        u64 ref_parent_dir;
+        type::FILETIME creation_time;
+        type::FILETIME modif_time;
+        type::FILETIME mtf_modif_time;
+        type::FILETIME access_time;
+        u64 alloc_size;
+        u64 real_size;
+        u32 flags;
+        u32 reparse_val;
+        u8 name_len;
+        u8 namespace_field;
+        char16 name[name_len];
+
+        u64 size = $ - start;
+        u8 other[attrLength - (size + headerSize)] [[hidden]];
+    };
+
     struct Attribute{
         AttrHeader header;
-        u8 other[header.attr_length - header.sizeOf] [[hidden]];
+        
+        // need to use them if content does not reach 
+        // the full size of the attribute
+        attrLength = 0;
+        headerSize = 0;
+        if(header.type_id == 0x30) {
+            attrLength = header.attr_length;
+            headerSize = header.sizeOf;
+        }
+
+        match(header.type_id){
+            (0x30): FileName content [[single_color]];
+            (_): u8 content[header.attr_length - header.sizeOf] [[hidden]];
+        }
     };
 
     struct MFTEntry{
@@ -115,7 +143,6 @@ namespace ntfs{
     };
 
     struct MFTTable{
-        tableStart = $;
         MFTEntry entries[entriesCount];
     };
 

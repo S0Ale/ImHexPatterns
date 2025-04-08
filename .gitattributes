@@ -1,2 +1,2 @@
-*.pat               linguist-language=C
-*.hexpat            linguist-language=C
+*.pat               linguist-language=Rust
+*.hexpat            linguist-language=Rust

@@ -1,5 +1,7 @@
 namespace FAT16 {
 
+    u64 bytesPerCluster;
+
     struct FAT_BootSector {
         char    jmpBoot[3];           // Jump instruction
         char    OEMName[8];           // OEM Name
@@ -23,6 +25,8 @@ namespace FAT16 {
         char    FileSystemType[8];   // File system type ("FAT12   ", "FAT16   ")
         char    BootCode[448];
         u16     Signature;           // Boot sector signature (0x55AA)
+
+        bytesPerCluster = SectorsPerCluster * BytesPerSector;
     };
 
     struct FAT_DirectoryEntry {
@@ -34,10 +38,13 @@ namespace FAT16 {
         le u16    CreateTime;            // Creation time (HH:MM:SS)
         le u16    CreateDate;            // Creation date (YYYY-MM-DD)
         le u16    LastAccessDate;        // Last access date
+        u16       Unused;
         le u16    WriteTime;             // Last write time
         le u16    WriteDate;             // Last write date
-        le u16    FirstClusterLow;       // First cluster low bytes
+        le u16    StartingCluster;
         le u32    FileSize;              // File size in bytes
+
+        u8 data[FileSize] @ StartingCluster * bytesPerCluster;
     };
 
     // VFAT Long File Name (LFN) entry

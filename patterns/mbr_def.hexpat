@@ -18,4 +18,3 @@ namespace mbr{
         u16 signature; // Boot signature (0xAA55)
     };
 }
-

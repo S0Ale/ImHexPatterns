@@ -65,8 +65,4 @@ namespace FAT16 {
         le u16    FirstClusterZero;      // Must be 0
         char16    Name3[2];              // Last 2 characters
     };
-
-    FAT_BootSector bootSect @ 0;
-    FAT_DirectoryEntry root_entries[bootSect.RootEntryCount] @ rootDirStart;
-
 }

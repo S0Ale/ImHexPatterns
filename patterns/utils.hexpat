@@ -1,31 +1,25 @@
 import std.io;
+import std.math;
 
-// Formatter for u8 (8-bit unsigned integer)
-fn format_u8(u8 value) {
+
+// Both decimal and hex
+
+fn decimal_hex(auto value) {
     return std::format("{:d}, 0x{:X}", value, value);
 };
 
-// Formatter for u16 (16-bit unsigned integer)
-fn format_u16(u16 value) {
-    return std::format("{:d}, 0x{:X}", value, value);
+// Only hex
+
+fn hex(auto value){
+    return std::format("0x{:X}", value);
 };
 
-// Formatter for u16 (16-bit unsigned integer)
-fn format_u24(u24 value) {
-    return std::format("{:d}, 0x{:X}", value, value);
-};
+// Cluster negative format
 
-// Formatter for u32 (32-bit unsigned integer)
-fn format_u32(u32 value) {
-    return std::format("{:d}, 0x{:X}", value, value);
-};
-
-// Formatter for u64 (64-bit unsigned integer)
-fn format_u64(u64 value) {
-    return std::format("{:d}, 0x{:X}", value, value);
-};
-
-// Formatter for u128 (128-bit unsigned integer)
-fn format_u128(u128 value) {
-    return std::format("{:d}, 0x{:X}", value, value);
+fn negative_size(auto val){
+    if(val < 0x80) return std::format("{:d} clusters", val);
+    
+    s64 value = val;
+    u64 bytes = std::math::pow(2, std::math::abs(value - 256));
+    return std::format("{:d} bytes", bytes);
 };

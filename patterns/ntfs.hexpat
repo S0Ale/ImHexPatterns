@@ -1,10 +1,12 @@
 #include <utils.hexpat>
 import type.time;
+import std.io;
 
 s64 attributeCount in; // Negative if you want to search patterns until the end of the sequence (type 0xffffffff)
 u8 entriesCount in;
 
 s64 count = attributeCount; // attribute counter (if positive)
+
 
 namespace ntfs{
 
@@ -66,7 +68,12 @@ namespace ntfs{
 
     enum FormCode: u8{
         RESIDENT = 0x0,
-        NONRESIDENT = 0x1
+        NOTRESIDENT = 0x1
+    };
+
+    fn form_code(FormCode code){
+        if(code == 0x0) return std::format("RESIDENT");
+        return std::format("NOT-RESIDENT");
     };
 
     struct AttrHeader{
@@ -79,7 +86,7 @@ namespace ntfs{
         u32 attr_length;
         if(type_id == 0xffffffff) break; // end of entry attributes
 
-        FormCode form_code [[comment("0: resident; 1: not-resident")]];
+        FormCode form_code [[format_read("ntfs::form_code"), comment("0: resident; 1: not-resident")]];
         u8 name_len;
         u16 name_offset;
         u16 flags [[format_read("decimal_hex")]];

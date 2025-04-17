@@ -1,3 +1,5 @@
+#include <utils.hexpat> 
+import type.time;
 
 namespace FAT16 {
 
@@ -15,7 +17,7 @@ namespace FAT16 {
         u8      FATCount;             // Number of FATs
         le u16  RootEntryCount;       // Max root directory entries (FAT12/16)
         le u16  TotalSectors16;       // Total sectors (if 0, check LargeSectors)
-        u8      MediaDescriptor;      // Media descriptor type
+        u8      MediaDescriptor [[format_read("hex"), comment("Media type, 0xF8 for disk")]];
         le u16  SectorsPerFAT16;      // Sectors per FAT (FAT12/16)
         le u16  SectorsPerTrack;      // Sectors per track (for CHS)
         le u16  HeadsPerCylinder;     // Number of heads (for CHS)
@@ -28,7 +30,7 @@ namespace FAT16 {
         char    VolumeLabel[11];     // Volume label
         char    FileSystemType[8];   // File system type ("FAT12   ", "FAT16   ")
         char    BootCode[448];
-        u16     Signature;           // Boot sector signature (0x55AA)
+        u16     Signature [[format_read("hex"), comment("Always 0xAA55")]]; 
 
         rootDirStart = (ReservedSectors + (FATCount * SectorsPerFAT16)) * BytesPerSector;
         dataStart = rootDirStart + (RootEntryCount * 32);
@@ -36,20 +38,50 @@ namespace FAT16 {
         bytesPerCluster = SectorsPerCluster * BytesPerSector;
     };
 
+    bitfield EntryAttribute{
+        read_only : 1;
+        hidden : 1;
+        system : 1;
+        volume_label : 1;
+        subdir : 1;
+        archive : 1 [[comment("marked as 'dirty'")]];
+        device : 1;
+        reserved : 1;
+    };
+
+    enum EntryFirst : u8{
+        ENDMARKER = 0x00,
+        DOTENTRY = 0x2E,
+        DELETED = 0xE5 | 0x05
+    };
+
+    fn format_first(EntryFirst val){
+        str string = "NO SPECIAL VALUE";
+        match(val){
+            (EntryFirst::ENDMARKER): string = "ENDMARKER";
+            (EntryFirst::DOTENTRY): string = "DOTENTRY";
+            (EntryFirst::DELETED): string = "DELETED";
+        }
+        return string;
+    };
+
     struct FAT_DirectoryEntry {
-        char      Name[8];               // File name
-        char      Extension[3];          // File extension
-        u8        Attributes;            // File attributes
-        u8        Reserved;              // Reserved for Windows NT
-        u8        CreateTimeTenth;       // Creation time (tenths of a second)
-        le u16    CreateTime;            // Creation time (HH:MM:SS)
-        le u16    CreateDate;            // Creation date (YYYY-MM-DD)
-        le u16    LastAccessDate;        // Last access date
-        u16       Unused;
-        le u16    WriteTime;             // Last write time
-        le u16    WriteDate;             // Last write date
-        le u16    StartingCluster;
-        le u32    FileSize;              // File size in bytes
+        u64 start = $;
+        EntryFirst firstByte @ start [[format_read("FAT16::format_first"), comment("Special value for the first byte")]];
+
+        char Name[8]; // File name
+        char Extension[3]; // File extension
+        EntryAttribute Attributes; // File attributes
+        u8 Reserved; // Reserved for Windows NT
+        u8 CreateTimeTenth; // Creation time (tenths of a second)
+        type::DOSTime CreateTime; // Creation time (HH:MM:SS)
+        type::DOSDate CreateDate; // Creation date (YYYY-MM-DD)
+        le u16 LastAccessDate; // Last access date
+        u16 Unused;
+        type::DOSTime WriteTime; // Last write time
+        type::DOSDate WriteDate; // Last write date
+        le u16 StartingCluster;
+        le u32 FileSize; // File size in bytes
 
         char data[FileSize] @ dataStart + ((StartingCluster - 2) * bytesPerCluster);
     };

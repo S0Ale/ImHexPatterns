@@ -17,7 +17,7 @@ fn hex(auto value){
 // Cluster negative format
 
 fn negative_size(auto val){
-    if(val < 0x80) return std::format("{:d} clusters", val);
+    if(val < 0x80) return std::format("{:d}", val);
     
     s64 value = val;
     u64 bytes = std::math::pow(2, std::math::abs(value - 256));
